@@ -1,0 +1,210 @@
+﻿@using SupportDeskSystem.Web.Enums
+@model IEnumerable<SupportDeskSystem.Web.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Support Staff Dashboard";
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Support Staff Dashboard</h2>
+        <p class="text-muted mb-0">
+            Manage and monitor support tickets
+        </p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Total Tickets</p>
+                    <h3 class="fw-bold mb-0">@ViewBag.TotalTickets</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Open</p>
+                    <h3 class="fw-bold mb-0">@ViewBag.OpenTickets</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">In Progress</p>
+                    <h3 class="fw-bold mb-0">@ViewBag.InProgressTickets</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Resolved</p>
+                    <h3 class="fw-bold mb-0">@ViewBag.ResolvedTickets</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1">All Tickets</h5>
+                    <p class="text-muted mb-0">
+                        View and manage submitted support tickets
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <p class="text-muted mb-0">No tickets found.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4">ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Assigned To</th>
+                                <th class="text-end px-4">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var ticket in Model)
+                            {
+                                <tr>
+
+                                    <td class="px-4 fw-semibold">
+                                        #@ticket.Id
+                                    </td>
+
+                                    <td>
+                                        <span class="fw-semibold">
+                                            @ticket.Title
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @ticket.Category
+                                    </td>
+
+                                    <td>
+                                        @ticket.Priority
+                                    </td>
+
+                                    <td>
+                                        @if (ticket.Status == TicketStatus.Open)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Open
+                                            </span>
+                                        }
+                                        else if (ticket.Status == TicketStatus.InProgress)
+                                        {
+                                            <span class="badge bg-primary">
+                                                In Progress
+                                            </span>
+                                        }
+                                        else if (ticket.Status == TicketStatus.Resolved)
+                                        {
+                                            <span class="badge bg-success">
+                                                Resolved
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @ticket.Status
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @(ticket.CreatedBy?.FullName ?? "Unknown")
+                                    </td>
+
+                                    <td>
+                                        @(ticket.AssignedTo?.FullName ?? "Unassigned")
+                                    </td>
+
+                                    <td class="text-end px-4">
+
+                                        <div class="d-flex justify-content-end gap-2">
+
+                                            <a asp-controller="SupportStaff"
+                                               asp-action="Details"
+                                               asp-route-id="@ticket.Id"
+                                               class="btn btn-sm btn-outline-secondary">
+                                                Details
+                                            </a>
+
+                                            <a asp-controller="SupportStaff"
+                                               asp-action="EditTicket"
+                                               asp-route-id="@ticket.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                Edit
+                                            </a>
+
+                                            <form asp-controller="SupportStaff"
+                                                  asp-action="Delete"
+                                                  asp-route-id="@ticket.Id"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    Delete
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

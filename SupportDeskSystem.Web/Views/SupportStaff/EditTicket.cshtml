@@ -1,0 +1,170 @@
+﻿@using SupportDeskSystem.Web.Enums
+@model SupportDeskSystem.Web.Models.Ticket
+
+@{
+    ViewData["Title"] = "Edit Ticket";
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Edit Ticket</h2>
+        <p class="text-muted mb-0">
+            Update the details and status of this support ticket
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-4">
+
+            <form asp-controller="SupportStaff"
+                  asp-action="EditTicket"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- Title -->
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold">
+                        Title
+                    </label>
+
+                    <input asp-for="Title"
+                           class="form-control"
+                           placeholder="Enter ticket title" />
+
+                    <span asp-validation-for="Title"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold">
+                        Description
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="5"
+                              placeholder="Enter ticket description"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="row">
+
+                    <!-- Category -->
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Category" class="form-label fw-semibold">
+                            Category
+                        </label>
+
+                        <select asp-for="Category"
+                                asp-items="Html.GetEnumSelectList<TicketCategory>()"
+                                class="form-select">
+
+                            <option value="">
+                                Select Category
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Category"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Priority" class="form-label fw-semibold">
+                            Priority
+                        </label>
+
+                        <select asp-for="Priority"
+                                asp-items="Html.GetEnumSelectList<TicketPriority>()"
+                                class="form-select">
+
+                            <option value="">
+                                Select Priority
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Priority"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Status" class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        <select asp-for="Status"
+                                asp-items="Html.GetEnumSelectList<TicketStatus>()"
+                                class="form-select">
+                        </select>
+
+                        <span asp-validation-for="Status"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- Assigned To -->
+                <div class="mb-4">
+                    <label asp-for="AssignedToId" class="form-label fw-semibold">
+                        Assigned To
+                    </label>
+
+                    <select asp-for="AssignedToId"
+                            asp-items="ViewBag.SupportStaff"
+                            class="form-select">
+                        <option value="">Unassigned</option>
+                    </select>
+
+                    <span asp-validation-for="AssignedToId" class="text-danger"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Save Changes
+                    </button>
+
+                    <a asp-controller="SupportStaff"
+                       asp-action="Dashboard"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+ 
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

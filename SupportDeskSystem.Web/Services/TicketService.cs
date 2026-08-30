@@ -17,7 +17,8 @@ namespace SupportDeskSystem.Web.Services
         public async Task<List<Ticket>> GetAllAsync()
         {
             return await _context.Tickets
-                .OrderByDescending(t => t.Id)
+                .Include(t => t.CreatedBy)
+                .Include(t => t.AssignedTo)
                 .ToListAsync();
         }
 

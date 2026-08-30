@@ -10,14 +10,14 @@ namespace SupportDeskSystem.Web.Models
 
         public string Description { get; set; } = string.Empty;
 
-        public TicketPriority Priority { get; set; }
-
-        public TicketStatus Status { get; set; }
-
         public TicketCategory Category { get; set; }
 
+        public TicketPriority Priority { get; set; } = TicketPriority.Unspecified;
+
+        public TicketStatus Status { get; set; } = TicketStatus.Open;
+
         public int CreatedById { get; set; }
-        public User CreatedBy { get; set; } = null!;
+        public User? CreatedBy { get; set; } = null!;
 
         public int? AssignedToId { get; set; }
         public User? AssignedTo { get; set; }
@@ -26,7 +26,6 @@ namespace SupportDeskSystem.Web.Models
 
         public DateTime? UpdatedAt { get; set; }
 
-        // A ticket can have multiple comments
         public ICollection<TicketComment> Comments { get; set; }
             = new List<TicketComment>();
     }

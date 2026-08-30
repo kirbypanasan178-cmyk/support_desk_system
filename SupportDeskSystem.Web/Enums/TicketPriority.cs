@@ -2,6 +2,7 @@
 {
     public enum TicketPriority
     {
+        Unspecified,
         Low,
         Medium,
         High,

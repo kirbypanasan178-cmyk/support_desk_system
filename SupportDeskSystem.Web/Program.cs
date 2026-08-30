@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TicketService>();
 
 var app = builder.Build();
 
@@ -34,6 +35,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=User}/{action=Index}/{id?}");
+    pattern: "{controller=Employee}/{action=Dashboard}/{id?}");
 
 app.Run();

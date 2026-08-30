@@ -1,0 +1,352 @@
+﻿```cshtml
+@using SupportDeskSystem.Web.Enums
+@model List<SupportDeskSystem.Web.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Employee Dashboard";
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Employee Dashboard</h2>
+            <p class="text-muted mb-0">
+                View and track your support tickets.
+            </p>
+        </div>
+
+        <a asp-controller="Employee"
+           asp-action="CreateTicket"
+           class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>
+            Create Ticket
+        </a>
+    </div>
+
+
+    <!-- Statistics -->
+    <div class="row g-4 mb-4">
+
+        <!-- Total -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <p class="text-muted mb-1">Total Tickets</p>
+                            <h3 class="fw-bold mb-0">
+                                @ViewBag.TotalTickets
+                            </h3>
+                        </div>
+
+                        <div class="fs-2 text-primary">
+                            <i class="bi bi-ticket-perforated"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Open -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <p class="text-muted mb-1">Open</p>
+                            <h3 class="fw-bold mb-0">
+                                @ViewBag.OpenTickets
+                            </h3>
+                        </div>
+
+                        <div class="fs-2 text-warning">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- In Progress -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <p class="text-muted mb-1">In Progress</p>
+                            <h3 class="fw-bold mb-0">
+                                @ViewBag.InProgressTickets
+                            </h3>
+                        </div>
+
+                        <div class="fs-2 text-info">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Resolved -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <p class="text-muted mb-1">Resolved</p>
+                            <h3 class="fw-bold mb-0">
+                                @ViewBag.ResolvedTickets
+                            </h3>
+                        </div>
+
+                        <div class="fs-2 text-success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Tickets Card -->
+    <div class="card border-0 shadow-sm">
+
+        <!-- Card Header -->
+        <div class="card-header bg-white border-0 py-3">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+                    <h5 class="fw-bold mb-1">My Tickets</h5>
+                    <p class="text-muted mb-0">
+                        Your submitted support tickets.
+                    </p>
+                </div>
+
+                <a asp-controller="Employee"
+                   asp-action="CreateTicket"
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    New Ticket
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Table -->
+        <div class="card-body p-0">
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4">#</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th class="text-end px-4">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var ticket in Model)
+                            {
+                                <tr>
+
+                                    <!-- ID -->
+                                    <td class="px-4">
+                                        <span class="fw-semibold">
+                                            #@ticket.Id
+                                        </span>
+                                    </td>
+
+
+                                    <!-- Title -->
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @ticket.Title
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(ticket.Description))
+                                        {
+                                            <small class="text-muted">
+                                                @(ticket.Description.Length > 60
+                                                                                    ? ticket.Description.Substring(0, 60) + "..."
+                                                                                    : ticket.Description)
+                                </small>
+                                                                }
+                                    </td>
+
+
+                                    <!-- Category -->
+                                    <td>
+                                        @ticket.Category
+                                    </td>
+
+
+                                    <!-- Priority -->
+                                    <td>
+                                        @switch (ticket.Priority)
+                                        {
+                                            case TicketPriority.Unspecified:
+                                                <span class="badge bg-secondary">
+                                                    Unspecified
+                                                </span>
+                                                break;
+
+                                            case TicketPriority.Low:
+                                                <span class="badge bg-success">
+                                                    Low
+                                                </span>
+                                                break;
+
+                                            case TicketPriority.Medium:
+                                                <span class="badge bg-warning text-dark">
+                                                    Medium
+                                                </span>
+                                                break;
+
+                                            case TicketPriority.High:
+                                                <span class="badge bg-danger">
+                                                    High
+                                                </span>
+                                                break;
+
+                                            case TicketPriority.Critical:
+                                                <span class="badge bg-dark">
+                                                    Critical
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-secondary">
+                                                    @ticket.Priority
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td>
+                                        @switch (ticket.Status)
+                                        {
+                                            case TicketStatus.Open:
+                                                <span class="badge bg-primary">
+                                                    Open
+                                                </span>
+                                                break;
+
+                                            case TicketStatus.InProgress:
+                                                <span class="badge bg-info text-dark">
+                                                    In Progress
+                                                </span>
+                                                break;
+
+                                            case TicketStatus.Resolved:
+                                                <span class="badge bg-success">
+                                                    Resolved
+                                                </span>
+                                                break;
+
+                                            case TicketStatus.Closed:
+                                                <span class="badge bg-secondary">
+                                                    Closed
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-secondary">
+                                                    @ticket.Status
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+
+
+                                    <!-- Created Date -->
+                                    <td>
+                                        <small class="text-muted">
+                                            @ticket.CreatedAt
+                                            .ToLocalTime()
+                                            .ToString("MMM dd, yyyy")
+                                        </small>
+                                    </td>
+
+
+                                    <!-- Details -->
+                                    <td class="text-end px-4">
+                                        <a asp-controller="Employee"
+                                           asp-action="Details"
+                                           asp-route-id="@ticket.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="text-center py-5">
+
+                    <div class="fs-1 text-muted mb-3">
+                        <i class="bi bi-ticket-perforated"></i>
+                    </div>
+
+                    <h5 class="fw-bold">
+                        No tickets yet
+                    </h5>
+
+                    <p class="text-muted mb-4">
+                        You haven't created any support tickets yet.
+                    </p>
+
+                    <a asp-controller="Employee"
+                       asp-action="CreateTicket"
+                       class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Create Your First Ticket
+                    </a>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+```

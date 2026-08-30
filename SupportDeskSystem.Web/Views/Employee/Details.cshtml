@@ -1,0 +1,200 @@
+﻿
+@using SupportDeskSystem.Web.Enums
+@model SupportDeskSystem.Web.Models.Ticket
+
+@{
+    ViewData["Title"] = "Ticket Details";
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Ticket Details</h2>
+            <p class="text-muted mb-0">
+                View your support ticket
+            </p>
+        </div>
+
+        <a asp-controller="Employee"
+           asp-action="Dashboard"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Ticket Information -->
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+                    <div class="text-muted small mb-1">
+                        Ticket #@Model.Id
+                    </div>
+
+                    <h4 class="fw-bold mb-0">
+                        @Model.Title
+                    </h4>
+                </div>
+
+                <span class="badge bg-primary">
+                    @Model.Status
+                </span>
+
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Category & Priority -->
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        CATEGORY
+                    </div>
+
+                    <div>
+                        @Model.Category
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        PRIORITY
+                    </div>
+
+                    <div>
+                        @Model.Priority
+                    </div>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- Description -->
+            <div class="mb-4">
+                <div class="text-muted small fw-bold mb-2">
+                    DESCRIPTION
+                </div>
+
+                <div class="p-3 bg-light rounded">
+                    @Model.Description
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Users -->
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        CREATED BY
+                    </div>
+
+                    <div>
+                        @(Model.CreatedBy?.FullName ?? "Unknown")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        ASSIGNED TO
+                    </div>
+
+                    <div>
+                        @(Model.AssignedTo?.FullName ?? "Not assigned")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Dates -->
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        CREATED AT
+                    </div>
+
+                    <div>
+                        @Model.CreatedAt.ToLocalTime()
+                        .ToString("MMM dd, yyyy hh:mm tt")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small fw-bold mb-1">
+                        LAST UPDATED
+                    </div>
+
+                    <div>
+                        @(Model.UpdatedAt.HasValue
+                                                ? Model.UpdatedAt.Value
+                                                .ToLocalTime()
+                                                .ToString("MMM dd, yyyy hh:mm tt")
+                                                : "Not updated")
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                Comments
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.Comments.Any())
+            {
+                foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
+                {
+                    <div class="border-bottom pb-3 mb-3">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <strong>
+                                @comment.User?.FullName
+                            </strong>
+
+                            <small class="text-muted">
+                                @comment.CreatedAt
+                                .ToLocalTime()
+                                .ToString("MMM dd, yyyy hh:mm tt")
+                            </small>
+
+                        </div>
+
+                        <p class="mb-0 mt-2">
+                            @comment.Message
+                        </p>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No comments yet.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+</div>

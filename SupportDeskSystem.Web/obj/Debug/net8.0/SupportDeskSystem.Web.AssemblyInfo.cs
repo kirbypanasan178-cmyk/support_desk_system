@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SupportDeskSystem.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72bedb4210d5d52847e41149b05967871d167df6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b3b4e0fb9db21cf223d73390650f2473aef718e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SupportDeskSystem.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SupportDeskSystem.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

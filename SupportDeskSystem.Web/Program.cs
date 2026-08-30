@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SupportDeskSystem.Web.Data;
+using SupportDeskSystem.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
+
+// Register services
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 
@@ -30,6 +34,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=User}/{action=Index}/{id?}");
 
 app.Run();

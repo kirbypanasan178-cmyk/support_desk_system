@@ -35,9 +35,9 @@ namespace SupportDeskSystem.Web.Services
 
 
         // Create ticket
-        public async Task CreateAsync(Ticket ticket)
+        public async Task CreateAsync(Ticket ticket, int userId)
         {
-            ticket.CreatedById = 2;
+            ticket.CreatedById = userId;
 
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();

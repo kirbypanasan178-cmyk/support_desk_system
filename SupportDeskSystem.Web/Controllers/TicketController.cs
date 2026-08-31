@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SupportDeskSystem.Web.Models;
 using SupportDeskSystem.Web.Services;
+using System.Security.Claims;
 
 namespace SupportDeskSystem.Web.Controllers
 {
@@ -46,7 +47,12 @@ namespace SupportDeskSystem.Web.Controllers
             if (!ModelState.IsValid)
                 return View(ticket);
 
-            await _ticketService.CreateAsync(ticket);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized();
+
+            await _ticketService.CreateAsync(ticket, int.Parse(userId));
 
             return RedirectToAction(nameof(Index));
         }

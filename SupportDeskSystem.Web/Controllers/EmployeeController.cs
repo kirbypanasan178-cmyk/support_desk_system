@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SupportDeskSystem.Web.Models;
 using SupportDeskSystem.Web.Services;
+using System.Security.Claims;
 
 namespace SupportDeskSystem.Web.Controllers
 {
@@ -40,27 +41,20 @@ namespace SupportDeskSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTicket(Ticket ticket)
         {
-            Console.WriteLine("========== POST CREATE TICKET HIT ==========");
-            Console.WriteLine($"Title: {ticket.Title}");
-            Console.WriteLine($"Description: {ticket.Description}");
-            Console.WriteLine($"Category: {ticket.Category}");
+          
 
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("========== MODEL STATE INVALID ==========");
-
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage);
-                }
-
                 return View(ticket);
             }
 
-            await _ticketService.CreateAsync(ticket);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            Console.WriteLine("========== TICKET SAVED ==========");
+            if (userId == null)
+                return Unauthorized();
 
+            await _ticketService.CreateAsync(ticket, int.Parse(userId));
+         
             return RedirectToAction("Dashboard");
         }
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using SupportDeskSystem.Web.Data;
 using SupportDeskSystem.Web.Services;
@@ -22,6 +23,22 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 
+// ==============================
+// Authentication
+// ==============================
+builder.Services.AddAuthentication(
+    CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+    });
+
+// ==============================
+// Authorization
+// ==============================
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -38,6 +55,8 @@ app.UseRouting();
 
 app.UseSession();
 
+// IMPORTANT: Authentication must come before Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

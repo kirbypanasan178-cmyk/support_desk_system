@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SupportDeskSystem.Web.Data;
 using SupportDeskSystem.Web.Enums;
@@ -7,6 +8,7 @@ using SupportDeskSystem.Web.Services;
 
 namespace SupportDeskSystem.Web.Controllers
 {
+    [Authorize(Roles = "SupportStaff, Admin")]
     public class SupportStaffController : Controller
     {
         private readonly TicketService _ticketService;

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SupportDeskSystem.Web.Models;
 using SupportDeskSystem.Web.Services;
 
 namespace SupportDeskSystem.Web.Controllers
 {
+    [Authorize(Roles = "Employee")]
     public class EmployeeController : Controller
     {
         private readonly TicketService _ticketService;

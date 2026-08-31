@@ -23,14 +23,50 @@ namespace SupportDeskSystem.Web.Controllers
         }
 
         // Support Staff Dashboard
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(
+    string? search,
+    TicketCategory? category,
+    TicketPriority? priority,
+    TicketStatus? status,
+    int page = 1)
         {
-            var tickets = await _ticketService.GetAllAsync();
+            const int pageSize = 10;
 
-            ViewBag.TotalTickets = tickets.Count;
-            ViewBag.OpenTickets = tickets.Count(t => t.Status == TicketStatus.Open);
-            ViewBag.InProgressTickets = tickets.Count(t => t.Status == TicketStatus.InProgress);
-            ViewBag.ResolvedTickets = tickets.Count(t => t.Status == TicketStatus.Resolved);
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var result = await _ticketService.GetAllTicketsAsync(
+                search,
+                category,
+                priority,
+                status,
+                page,
+                pageSize
+            );
+
+            var tickets = result.Tickets;
+            var totalCount = result.TotalCount;
+
+            // Stats now reflect the FULL filtered set, not just the current page
+            var stats = await _ticketService.GetTicketStatsAsync(search, category, priority, status);
+
+            ViewBag.TotalTickets = stats.Total;
+            ViewBag.OpenTickets = stats.Open;
+            ViewBag.InProgressTickets = stats.InProgress;
+            ViewBag.ResolvedTickets = stats.Resolved;
+
+            // Pagination
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            // Keep filter values for the view
+            ViewBag.Search = search;
+            ViewBag.Category = category;
+            ViewBag.Priority = priority;
+            ViewBag.Status = status;
 
             return View(tickets);
         }
@@ -38,7 +74,7 @@ namespace SupportDeskSystem.Web.Controllers
         // Ticket Details
         public async Task<IActionResult> Details(int id)
         {
-            var ticket = await _ticketService.GetByIdAsync(id);
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
 
             if (ticket == null)
             {
@@ -52,7 +88,7 @@ namespace SupportDeskSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> EditTicket(int id)
         {
-            var ticket = await _ticketService.GetByIdAsync(id);
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
 
             if (ticket == null)
             {
@@ -96,7 +132,8 @@ namespace SupportDeskSystem.Web.Controllers
                 return View(ticket);
             }
 
-            var existingTicket = await _ticketService.GetByIdAsync(ticket.Id);
+            var existingTicket =
+                await _ticketService.GetTicketByIdAsync(ticket.Id);
 
             if (existingTicket == null)
             {
@@ -110,7 +147,7 @@ namespace SupportDeskSystem.Web.Controllers
             existingTicket.Status = ticket.Status;
             existingTicket.AssignedToId = ticket.AssignedToId;
 
-            await _ticketService.UpdateAsync(existingTicket);
+            await _ticketService.UpdateTicketAsync(existingTicket);
 
             return RedirectToAction(nameof(Dashboard));
         }
@@ -120,7 +157,7 @@ namespace SupportDeskSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _ticketService.DeleteAsync(id);
+            await _ticketService.DeleteTicketAsync(id);
 
             return RedirectToAction(nameof(Dashboard));
         }

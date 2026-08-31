@@ -3,6 +3,42 @@
 
 @{
     ViewData["Title"] = "Support Staff Dashboard";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalCount = ViewBag.TotalTickets ?? 0;
+
+    string? search = ViewBag.Search;
+    TicketCategory? selectedCategory = ViewBag.Category;
+    TicketPriority? selectedPriority = ViewBag.Priority;
+    TicketStatus? selectedStatus = ViewBag.Status;
+
+    string? categoryParam = selectedCategory.HasValue ? ((int)selectedCategory.Value).ToString() : null;
+    string? priorityParam = selectedPriority.HasValue ? ((int)selectedPriority.Value).ToString() : null;
+    string? statusParam = selectedStatus.HasValue ? ((int)selectedStatus.Value).ToString() : null;
+
+    int startItem = totalCount == 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+    int endItem = Math.Min(currentPage * pageSize, totalCount);
+
+    // Windowed page numbers with ellipsis for large page counts
+    var pageNumbers = new List<int?>();
+    const int windowSize = 2;
+    if (totalPages <= 7)
+    {
+        for (int i = 1; i <= totalPages; i++) pageNumbers.Add(i);
+    }
+    else
+    {
+        pageNumbers.Add(1);
+        if (currentPage - windowSize > 2) pageNumbers.Add(null);
+        for (int i = Math.Max(2, currentPage - windowSize); i <= Math.Min(totalPages - 1, currentPage + windowSize); i++)
+        {
+            pageNumbers.Add(i);
+        }
+        if (currentPage + windowSize < totalPages - 1) pageNumbers.Add(null);
+        pageNumbers.Add(totalPages);
+    }
 }
 
 <div class="container-fluid px-4 py-4">
@@ -14,6 +50,7 @@
             Manage and monitor support tickets
         </p>
     </div>
+
 
     <!-- Statistics -->
     <div class="row g-3 mb-4">
@@ -56,26 +93,124 @@
 
     </div>
 
-    <!-- Tickets Table -->
+
+    <!-- Tickets Card -->
     <div class="card border-0 shadow-sm">
 
+        <!-- Card Header -->
         <div class="card-header bg-white border-0 py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="fw-bold mb-1">All Tickets</h5>
-                    <p class="text-muted mb-0">
-                        View and manage submitted support tickets
-                    </p>
-                </div>
+
+            <div>
+                <h5 class="fw-bold mb-1">All Tickets</h5>
+
+                <p class="text-muted mb-3">
+                    View and manage submitted support tickets
+                </p>
             </div>
+
+
+            <!-- Search and Filters -->
+            <form asp-controller="SupportStaff"
+                  asp-action="Dashboard"
+                  method="get"
+                  id="filterForm">
+
+                <div class="row g-2">
+
+                    <!-- Search -->
+                    <div class="col-md-4">
+                        <input type="text"
+                               id="search"
+                               name="search"
+                               value="@search"
+                               class="form-control"
+                               placeholder="Search title..."
+                               autocomplete="off" />
+                    </div>
+
+
+                    <!-- Category -->
+                    <div class="col-md-2">
+                        <select id="category" name="category" class="form-select">
+                            <option value="">All Categories</option>
+
+                            @foreach (var category in Enum.GetValues<TicketCategory>())
+                            {
+                                <option value="@((int)category)"
+                                        selected="@(selectedCategory == category)">
+                                    @category
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Priority -->
+                    <div class="col-md-2">
+                        <select id="priority" name="priority" class="form-select">
+                            <option value="">All Priorities</option>
+
+                            @foreach (var priority in Enum.GetValues<TicketPriority>())
+                            {
+                                <option value="@((int)priority)"
+                                        selected="@(selectedPriority == priority)">
+                                    @priority
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Status -->
+                    <div class="col-md-2">
+                        <select id="status" name="status" class="form-select">
+                            <option value="">All Statuses</option>
+
+                            @foreach (var status in Enum.GetValues<TicketStatus>())
+                            {
+                                <option value="@((int)status)"
+                                        selected="@(selectedStatus == status)">
+                                    @status
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Buttons -->
+                    <div class="col-md-2 d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary flex-grow-1">
+                            Search
+                        </button>
+
+                        <a asp-controller="SupportStaff"
+                           asp-action="Dashboard"
+                           class="btn btn-outline-secondary">
+                            Reset
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
         </div>
 
+
+        <!-- Table -->
         <div class="card-body p-0">
 
             @if (!Model.Any())
             {
                 <div class="text-center py-5">
-                    <p class="text-muted mb-0">No tickets found.</p>
+
+                    <p class="text-muted mb-0">
+                        No tickets found.
+                    </p>
+
                 </div>
             }
             else
@@ -85,6 +220,7 @@
                     <table class="table table-hover align-middle mb-0">
 
                         <thead class="table-light">
+
                             <tr>
                                 <th class="px-4">ID</th>
                                 <th>Title</th>
@@ -95,7 +231,9 @@
                                 <th>Assigned To</th>
                                 <th class="text-end px-4">Actions</th>
                             </tr>
+
                         </thead>
+
 
                         <tbody>
 
@@ -103,25 +241,35 @@
                             {
                                 <tr>
 
+                                    <!-- ID -->
                                     <td class="px-4 fw-semibold">
                                         #@ticket.Id
                                     </td>
 
+
+                                    <!-- Title -->
                                     <td>
                                         <span class="fw-semibold">
                                             @ticket.Title
                                         </span>
                                     </td>
 
+
+                                    <!-- Category -->
                                     <td>
                                         @ticket.Category
                                     </td>
 
+
+                                    <!-- Priority -->
                                     <td>
                                         @ticket.Priority
                                     </td>
 
+
+                                    <!-- Status -->
                                     <td>
+
                                         @if (ticket.Status == TicketStatus.Open)
                                         {
                                             <span class="badge bg-warning text-dark">
@@ -146,20 +294,28 @@
                                                 @ticket.Status
                                             </span>
                                         }
+
                                     </td>
 
+
+                                    <!-- Created By -->
                                     <td>
                                         @(ticket.CreatedBy?.FullName ?? "Unknown")
                                     </td>
 
+
+                                    <!-- Assigned To -->
                                     <td>
                                         @(ticket.AssignedTo?.FullName ?? "Unassigned")
                                     </td>
 
+
+                                    <!-- Actions -->
                                     <td class="text-end px-4">
 
                                         <div class="d-flex justify-content-end gap-2">
 
+                                            <!-- Details -->
                                             <a asp-controller="SupportStaff"
                                                asp-action="Details"
                                                asp-route-id="@ticket.Id"
@@ -167,6 +323,8 @@
                                                 Details
                                             </a>
 
+
+                                            <!-- Edit -->
                                             <a asp-controller="SupportStaff"
                                                asp-action="EditTicket"
                                                asp-route-id="@ticket.Id"
@@ -174,6 +332,8 @@
                                                 Edit
                                             </a>
 
+
+                                            <!-- Delete -->
                                             <form asp-controller="SupportStaff"
                                                   asp-action="Delete"
                                                   asp-route-id="@ticket.Id"
@@ -202,9 +362,150 @@
                     </table>
 
                 </div>
+
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top flex-wrap gap-2">
+
+                    <div class="text-muted small">
+                        Showing @startItem&ndash;@endItem of @totalCount ticket@(totalCount == 1 ? "" : "s")
+                    </div>
+
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Ticket pagination">
+
+                            <ul class="pagination pagination-sm mb-0">
+
+                                <!-- Previous -->
+                                <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-controller="SupportStaff"
+                                       asp-action="Dashboard"
+                                       asp-route-search="@search"
+                                       asp-route-category="@categoryParam"
+                                       asp-route-priority="@priorityParam"
+                                       asp-route-status="@statusParam"
+                                       asp-route-page="@(currentPage - 1)"
+                                       aria-label="Previous">
+                                        &laquo;
+                                    </a>
+                                </li>
+
+
+                                <!-- Page Numbers (windowed, with ellipsis) -->
+                                @foreach (var p in pageNumbers)
+                                {
+                                    if (p == null)
+                                    {
+                                        <li class="page-item disabled">
+                                            <span class="page-link">&hellip;</span>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="page-item @(p == currentPage ? "active" : "")">
+                                            <a class="page-link"
+                                               asp-controller="SupportStaff"
+                                               asp-action="Dashboard"
+                                               asp-route-search="@search"
+                                               asp-route-category="@categoryParam"
+                                               asp-route-priority="@priorityParam"
+                                               asp-route-status="@statusParam"
+                                               asp-route-page="@p">
+                                                @p
+                                            </a>
+                                        </li>
+                                    }
+                                }
+
+
+                                <!-- Next -->
+                                <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-controller="SupportStaff"
+                                       asp-action="Dashboard"
+                                       asp-route-search="@search"
+                                       asp-route-category="@categoryParam"
+                                       asp-route-priority="@priorityParam"
+                                       asp-route-status="@statusParam"
+                                       asp-route-page="@(currentPage + 1)"
+                                       aria-label="Next">
+                                        &raquo;
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </nav>
+                    }
+
+                </div>
+
             }
 
         </div>
+
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form = document.getElementById("filterForm");
+            const search = document.getElementById("search");
+            const category = document.getElementById("category");
+            const priority = document.getElementById("priority");
+            const status = document.getElementById("status");
+
+            let searchTimeout;
+
+            // Restore focus to search box after page reload
+            if (sessionStorage.getItem("ticketSearchFocus") === "true") {
+                search.focus();
+
+                // Put cursor at the end of the text
+                search.setSelectionRange(
+                    search.value.length,
+                    search.value.length
+                );
+
+                sessionStorage.removeItem("ticketSearchFocus");
+            }
+
+            // Search automatically while typing
+            search.addEventListener("input", function () {
+
+                clearTimeout(searchTimeout);
+
+                searchTimeout = setTimeout(function () {
+
+                    // Remember that the search box had focus
+                    sessionStorage.setItem("ticketSearchFocus", "true");
+
+                    form.submit();
+
+                }, 400);
+
+            });
+
+            // Automatically filter when Category changes
+            category.addEventListener("change", function () {
+                form.submit();
+            });
+
+            // Automatically filter when Priority changes
+            priority.addEventListener("change", function () {
+                form.submit();
+            });
+
+            // Automatically filter when Status changes
+            status.addEventListener("change", function () {
+                form.submit();
+            });
+
+        });
+    </script>
+}
